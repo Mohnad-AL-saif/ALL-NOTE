@@ -1,5 +1,3 @@
-┌──(kali㉿kali)-[/mnt/…/OSCP-EXAM/AD/MS01/Tool]
-└─$ cat full_cred_attack_runner_v3.sh 
 #!/bin/bash
 # ============================================================
 #  💀 Full Credential Attack Runner v3 - ENHANCED
